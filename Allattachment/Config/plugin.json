@@ -1,0 +1,14 @@
+{
+	"name": "Allattachment",
+	"description": "Attachments for any model. Modification of NodeAttachment by Juraj Jancuska.",
+
+	"author": "Marcin Jóźwikowski",
+	"authorEmail": "marcin@jozwikowski.pl",
+	"authorUrl": "http://www.marcin.jozwikowski.pl",
+
+	"dependencies": {
+		"plugins": [
+			"Image2"
+		]
+	}
+}
