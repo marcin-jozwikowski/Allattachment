@@ -112,7 +112,7 @@ class AllattachmentActivation {
                 $controller->Setting->write('Allattachment.allowedFileTypes', 'jpg,gif,png', array(
                     'editable' => 1, 'description' => __('Coma separated list of allowes extensions (empty = all files)', true))
                 );
-                $controller->Setting->write('Allattachment.storageUploadDir', '', array(
+                $controller->Setting->write('Allattachment.storageUploadDir', WWW_ROOT.'uploads'.DS.'big', array(
                     'editable' => 1, 'description' => __('Full path to directory for big files. You can use it for FTP files uploading', true))
                 );
                 $controller->Setting->write('Allattachment.ffmpegDir', 'n/a', array(

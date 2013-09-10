@@ -1,12 +1,16 @@
 <div id="storage-uploader">
 <?php
+$currentModelName = Inflector::camelize(Inflector::singularize($this->request->params['controller']));
+$owner_id = $this->data[$currentModelName]['id'];
+$owner = $this->request->params['plugin'].'.'.$this->request->params['controller'];
 $upload_dir = Configure::read('Allattachment.storageUploadDir');
 if (!empty($upload_dir)) {
         echo $this->Html->link(__('Attach from server', true), Router::url(array(
                     'controller' => 'allattachment',
                     'action' => 'addStorageFile',
                     'plugin' => 'allattachment',
-                    'owner_id' => $this->data['Node']['id']), true) . '?KeepThis=true&TB_iframe=true&height=400&width=600',
+                    'owner' => $owner,
+                    'owner_id' => $owner_id . '?KeepThis=true&TB_iframe=true&height=600&width=900')),
                 array(
                     'class' => 'thickbox'));
 }
@@ -31,11 +35,6 @@ if (!empty($upload_dir)) {
 <?php
        $this->append('css', $this->Html->css('Allattachment.admin.css'));
        $this->append('scriptBottom', $this->Html->script('/Allattachment/js/valums-file-uploader/client/fileuploader.js'));
-//       debug($this->request); debug($this->data);
-       $currentModelName = Inflector::camelize(Inflector::singularize($this->request->params['controller']));
-//       debug($currentModelName); die;
-        $owner_id = $this->data[$currentModelName]['id'];
-        $owner = $this->request->params['plugin'].'.'.$this->request->params['controller'];
         // vars for javacript
         $action_url = $this->Html->url(array(
             'controller' => 'allattachment',
@@ -72,8 +71,6 @@ $(document).ready(function() {
             action: '<?php echo $action_url;?>',
             debug: true,
             params: {
-                    //owner_id: '<?php echo $owner_id;?>',
-                    //owner: '<?php echo $owner; ?>'
             },
             onSubmit: function(id, fileName){
                 $('#loading').show();

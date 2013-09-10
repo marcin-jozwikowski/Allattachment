@@ -1,6 +1,8 @@
 <?php
-echo $html->css('admin');
-echo $html->script('jquery/jquery.min');
+echo $this->Html->css('/croogo/css/admin');
+echo $this->Html->script('/croogo/js/jquery/jquery.min');
+$owner = $this->params['named']['owner'];
+$ownerId = $this->params['named']['owner_id'];
 ?>
 <script type="text/javascript">
     $(document).ready(function() {
@@ -27,7 +29,7 @@ if (!empty($notice)) {
                                             'controller' => 'allattachment',
                                             'action' => 'addStorageFile',
                                             'file' => $file,
-                                            'owner_id' => $owner_id,
+                                            'owner_id' => $ownerId,
                                             'owner' => $owner
                                         ));
                                 ?>
@@ -38,7 +40,7 @@ if (!empty($notice)) {
                                             'controller' => 'allattachment',
                                             'action' => 'deleteStorageFile',
                                             'file' => $file,
-                                            'owner_id' => $owner_id,
+                                            'owner_id' => $ownerId,
                                             'owner' => $owner
                                         ));
                                 ?>

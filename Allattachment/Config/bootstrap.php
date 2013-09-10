@@ -17,7 +17,7 @@
         foreach($attachTo as $to){
             $to = trim($to);
             Croogo::hookBehavior($to, 'Allattachment.Allattachment');
-            Croogo::hookAdminTab(Inflector::pluralize($to).'/admin_edit', 'Allattachments', 'Allattachment.admin_tab');
+            Croogo::hookAdminTab(Inflector::pluralize($to).'/admin_edit', 'Allattachment', 'Allattachment.admin_tab');
 //            Croogo::hookHelper('*', 'Attachment.Attachment');
             Croogo::hookHelper(Inflector::pluralize($to), 'Allattachment.Allattachment');
         }

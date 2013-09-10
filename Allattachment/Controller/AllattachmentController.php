@@ -114,19 +114,18 @@ class AllattachmentController extends AllattachmentAppController {
         * @return void
         */
        public function admin_add() {
-           
-           
+              Configure::write('debug', 0);
+              $this->disableCache();
+              $this->autoLayout = false;
+              $this->autoRender = false;
               
               $ownerId = $this->request->params['named']['owner_id'];
               $owner = $this->request->params['named']['owner'];
-//              $ownerId = $_GET['owner_id'];
-//              $owner = $_GET['owner'];
 
               $allowedExtensions = explode(',', Configure::read('Allattachment.allowedFileTypes'));
               $sizeLimit = Configure::read('Allattachment.maxFileSize') * 1024 * 1024;
               App::import('Vendor', 'Allattachment.fileuploader');
               $Uploader = new qqFileUploader($allowedExtensions, $sizeLimit);
-//              debug($this->request->params['named']); die;
               $result = $Uploader->handleUpload($this->uploads_path . DS);
               $uploadedFile = $Uploader->getFilename();
               if (!empty($ownerId) && !empty($owner) && ($uploadedFile != false)) {
@@ -149,23 +148,11 @@ class AllattachmentController extends AllattachmentAppController {
                          'status' => 1,
                          'mime_type' => $this->__getMime($newPath)
                      );
-
-                     // get shot time of photo
-                     /*if ($data['mime_type'] == 'image/jpeg' || $data['mime_type'] == 'image/tiff') {
-                            $exifData = $this->Nodeattachment->getExif($newPath);
-                            if (isset($exifData['DateTime']))
-                                   $data['created'] = $exifData['DateTime'];
-                     }*/
-
-//                     debug($data); die;
+                     
                      if (!$this->Allattachment->save($data, false)) {
                             $result = array('success' => false);
                      }
               }
-
-              Configure::write('debug', 0);
-              $this->disableCache();
-              $this->render(false);
               echo htmlspecialchars(json_encode($result), ENT_NOQUOTES);
               
        }
@@ -178,7 +165,8 @@ class AllattachmentController extends AllattachmentAppController {
         */
        public function admin_addStorageFile() {
 
-              App::import('Core', 'File');
+//              App::uses('Folder', 'Utility');
+
               $this->layout = 'ajax';
               $notice = array();
 
@@ -192,21 +180,28 @@ class AllattachmentController extends AllattachmentAppController {
               $ownerId = $this->params['named']['owner_id'];
 
               if (!empty($this->params['named']['file'])) {
-
-                     $File = new File($storage_path . DS . $this->params['named']['file']);
+                    App::uses('File', 'Utility');
+                    $bigFilePath = $storage_path . DS . $this->params['named']['file'];
+                     $File = new File($bigFilePath);
 
                      // don't overwrite previous files that were uploaded and slug filename
-                     $file['name'] = Inflector::slug($File->name());
-                     $file['ext'] = $File->ext();
-                     $file = $this->__uniqeSlugableFilename($file);
+//                     $file['name'] = Inflector::slug($File->name());
+//                     $file['ext'] = $File->ext();
+                     
+//                     $file = $this->__uniqeSlugableFilename($bigFilePath);
+                     
+//                     debug($file);
+//                     debug($File);
+//                     die;
 
-                     $file_name = $file['name'] . '.' . $file['ext'];
+//                     $file_name = $file['name'] . '.' . $file['ext'];
+                     $file_name = $this->__uniqeSlugableFilename($bigFilePath);
 
                      // copy file and save nodeattachment
                      if ($File->copy($this->uploads_path . DS . $file_name, true)) {
                             $data = array(
                                 'owner' => $owner,
-                                'owner_id' => $owner_id,
+                                'owner_id' => $ownerId,
                                 'slug' => $file_name,
                                 'path' => '/' . $this->uploads_dir . '/' . $file_name,
                                 'title' => $File->name(),
@@ -226,8 +221,9 @@ class AllattachmentController extends AllattachmentAppController {
                             }
                      }
               }
-
+              
               // list files
+//              debug($storage_path);
               $Folder = new Folder($storage_path);
               $content = $Folder->read();
               $this->set(compact('content', 'owner_id', 'owner', 'notice'));
@@ -261,12 +257,12 @@ class AllattachmentController extends AllattachmentAppController {
         * @return array
         */
        private function __uniqeSlugableFilename($fileName = null) {
-
               $file = pathinfo($fileName);
               $fileName = $file['filename'];
               $lp = 1;
               while (file_exists($this->uploads_path . DS . $fileName . '.' . $file['extension'])) {
                      $fileName = $file['filename'] . '_' . $lp;
+                     $lp++;
               }              
               $fileName .= '.'.$file['extension'];
               return $fileName;
@@ -299,8 +295,14 @@ class AllattachmentController extends AllattachmentAppController {
                      // wrond id, redirect
               }
               $attachment = $this->Allattachment->read(null, $id);
+//              debug($attachment);
               if (!$this->Allattachment->delete($id)) {
                      // delete error redirect
+              } else {
+                  // entry deleted. Deleting file itself
+                  if(is_file(WWW_ROOT.$attachment['Allattachment']['path'])){
+                      unlink(WWW_ROOT.$attachment['Allattachment']['path']);
+                  }
               }
               $this->redirect(array('action' => 'allattachmentIndex', 'owner' => $this->request->params['named']['owner'], 'owner_id' => $this->request->params['named']['owner_id']));
        }
